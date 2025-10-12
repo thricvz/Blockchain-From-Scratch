@@ -14,6 +14,8 @@ class P2PNetwork{
     void propagateOnNetwork(Message message) const;
     void sendNeighbor(IPV4Address Neighbor,Message message) const;
     virtual void onStartup() const  = 0;
+
+    virtual ~P2PNetwork()=default;
   private :
     std::unique_ptr<P2PNetworkImp> networkInterface{nullptr}; 
 

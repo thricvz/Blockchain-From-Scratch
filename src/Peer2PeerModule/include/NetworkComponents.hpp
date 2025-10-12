@@ -2,13 +2,13 @@
 #include <vector>
 
 using std::vector;
-typedef byte std::uint8_t;
+typedef std::uint8_t byte;
 
 struct IPV4Address{
   byte firstByte{};
   byte secondByte{};
   byte thirdByte{};
-  bytes fourthByte{}; 
+  byte fourthByte{}; 
 };
 
 
@@ -23,5 +23,5 @@ class Message{
    private: 
      vector<byte> content{};
      IPV4Address Author{};
-     vector<Flags> Flags{};
+     vector<Flag> Flags{};
 };
