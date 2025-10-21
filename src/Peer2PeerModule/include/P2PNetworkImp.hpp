@@ -2,22 +2,27 @@
 #include "NetworkComponents.hpp"
 #include <map>
 #include <vector>
-
+#include <utility>
 using std::map;
 using std::vector;
+using std::pair;
+
+using threadID = unsigned int;
+using socketFD = int;
+using threadInfo = pair<threadID,socketFD>;
 
 class P2PNetworkImp{
     public:
       P2PNetworkImp() = default;
-      virtual void startConnection(IPV4Address node)=0;
       virtual void endConnection(IPV4Address neighbor)=0;
       virtual void sendNeighbor(IPV4Address Neighbor,Message message) const=0;
-
+      virtual void startConnection(IPV4Address node)=0;
       virtual ~P2PNetworkImp()=default;
-  
+   
       vector<IPV4Address> neighborNodes{};
-    private:
-      typedef  unsigned int threadID;
-      map<IPV4Address,threadID> communicationChannel{};
+
+    protected:
+      virtual void setupConnection(IPV4Address node)=0;
+      map<IPV4Address,threadInfo> communicationChannel{};
 
 };
