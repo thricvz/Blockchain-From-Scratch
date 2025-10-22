@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include <memory>
 #include <queue>      
 #include <map>
 #include "P2PNetworkImp.hpp" 
@@ -14,10 +15,11 @@ class LinuxConnection{
     enum class ExecutionState{};
     enum class ExecutionCommand{SEND,CLOSE};
     
-    LinuxConnection(IPV4Address destinationNode);
+    LinuxConnection(int socketFD);
     ExecutionState getCurrentState() const; 
   
-    void launch();
+    void start();  
+
   private:
     using commandFunction = function<void()>; 
     inline static map<ExecutionCommand,commandFunction> commandFunctions{};
@@ -33,10 +35,8 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
       virtual void startConnection(IPV4Address node) override;
       virtual void endConnection(IPV4Address neighbor) override;
       virtual void sendNeighbor(IPV4Address Neighbor,Message message) const override;
-
-      virtual ~LinuxP2PNetworkImp()= default; 
-
     protected:
-      virtual void setupConnection(IPV4Address node) override;
+      virtual void setupConnection(IPV4Address destinationNode) ;
+      map<IPV4Address,std::unique_ptr<LinuxConnection>> activeConnections{};
 }; 
 

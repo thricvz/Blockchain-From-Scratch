@@ -1,24 +1,25 @@
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
 #include <thread>
 #include <iostream>
 #include <exception>
-#include <sys/socket.h>
+#include <memory>
 #include "include/LinuxP2PNetworkImp.hpp" 
 #define DEFAULT_PORT 69
 
 
 
-LinuxConnection::LinuxConnection(IPV4Address destinationNode){
-    this->destinationNode = destinationNode; 
-};
+LinuxConnection::LinuxConnection(int socketFD):
+  socketFD{socketFD}
+{};
 
 LinuxConnection::ExecutionState LinuxConnection::getCurrentState() const{
     return currentState;
 }; 
   
-void LinuxConnection::create(){
-};
 
-void LinuxConnection::launch(){
+void LinuxConnection::start(){
       //connect to the socket 
       while(true){
           if(this->commands.empty())
@@ -61,22 +62,35 @@ void LinuxP2PNetworkImp::setupConnection(IPV4Address destinationNode){
        cleanup();
        throw std::runtime_error("Failed to create socket for address:"+static_cast<string>(destinationNode));
     } 
-    errorCode = connection(socketFD,connectionData->ai_addr,connectionData->ai_addrlen);
+    errorCode = connect(socketFD,connectionData->ai_addr,connectionData->ai_addrlen);
     if(errorCode){
        cleanup();
        throw std::runtime_error("Failed to bind socket to address:"+static_cast<string>(destinationNode));
     }
     
-    threadInfo newConnection(0,socketFD);
-    communicationChannel[destinationNode] = newConnection;
+    activeSockets[destinationNode] = socketFD;
     cleanup();
 }
 
+inline void launchConnection(LinuxConnection* newConnection){
+      newConnection->start();
+
+}
 void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
+    //only one connection is allowed for node
+    if(activeConnections.find(destinationNode) != activeConnections.end())
+      return;
+
     try{
       setupConnection(destinationNode);
+      int connectionSocketFD = activeSockets[destinationNode]; 
+      std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD);
+      std::thread connectionThread(launchConnection,newConnection.get());
+      connectionThread.detach();
 
-    }catch(Exception error){
+      activeConnections[destinationNode] = std::move(newConnection);
+       
+    }catch(std::exception error){
         std::cout << error.what();
     }
 
@@ -88,6 +102,7 @@ void LinuxP2PNetworkImp::sendNeighbor(IPV4Address Neighbor,Message message) cons
 
 
 } 
+
 
 
 

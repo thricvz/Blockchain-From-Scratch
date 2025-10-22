@@ -14,7 +14,7 @@ struct IPV4Address{
   byte thirdByte{};
   byte fourthByte{}; 
   
-  operator string(){
+  operator string() const {
       return (
           to_string(firstByte) +
           '.' + to_string(secondByte)+
@@ -23,6 +23,12 @@ struct IPV4Address{
           );
   }
   
+  bool operator<(const IPV4Address& rhs) const {
+      return (firstByte >= rhs.firstByte)   ||
+             (secondByte >= rhs.secondByte) ||
+             (thirdByte >= rhs.thirdByte)   ||
+             (fourthByte >= rhs.fourthByte );   
+  }
 };
 
 

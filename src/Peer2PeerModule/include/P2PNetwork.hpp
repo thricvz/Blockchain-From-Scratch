@@ -11,7 +11,7 @@ class P2PNetwork{
     void startConnection(IPV4Address node);
     void endConnection(IPV4Address neighbor);
 
-    void propagateOnNetwork(Message message) const;
+    void propagateOnNetwork(Message message,vector<IPV4Address> excludeNodes={}) const;
     void sendNeighbor(IPV4Address Neighbor,Message message) const;
     virtual void onStartup() const  = 0;
 

@@ -7,9 +7,7 @@ using std::map;
 using std::vector;
 using std::pair;
 
-using threadID = unsigned int;
 using socketFD = int;
-using threadInfo = pair<threadID,socketFD>;
 
 class P2PNetworkImp{
     public:
@@ -23,6 +21,7 @@ class P2PNetworkImp{
 
     protected:
       virtual void setupConnection(IPV4Address node)=0;
-      map<IPV4Address,threadInfo> communicationChannel{};
+      map<IPV4Address,socketFD> activeSockets{};
+      
 
 };
