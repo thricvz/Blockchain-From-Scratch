@@ -21,15 +21,29 @@ LinuxConnection::ExecutionState LinuxConnection::getCurrentState() const{
 }; 
   
 
+void LinuxConnection::addCommand(LinuxConnection::ExecutionCommand command){
+   commands.push(command);
+}; 
+
+void LinuxConnection::execute(LinuxConnection::ExecutionCommand command){
+    switch(command){
+        case ExecutionCommand::PRINT:
+          commandPrint();
+        default:
+          ;
+    }
+}
+
 void LinuxConnection::start(){
+
       while(true){
           if(this->commands.empty())
             continue;
           
           auto operation = commands.front();
           commands.pop();
-          commandFunctions[operation](); 
           
+          execute(operation); 
       }
 };
 void LinuxP2PNetworkImp::setupConnection(IPV4Address destinationNode){
@@ -80,7 +94,7 @@ inline void launchConnection(LinuxConnection* newConnection){
 }
 void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
     //only one connection is allowed for node
-    if(activeConnections.find(destinationNode) != activeConnections.end())
+    if(connectionExists(destinationNode))
       return;
 
     try{
@@ -88,12 +102,10 @@ void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
       int connectionSocketFD = activeSockets[destinationNode]; 
       std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD);
       std::thread connectionThread(launchConnection,newConnection.get());
-
+      connectionThread.detach();
       //connect to the socket 
-     char secretMessage[55]  = "hello world! lets go network programming";
-     send(connectionSocketFD,secretMessage,sizeof(secretMessage),0);
 
-      activeConnections[destinationNode] = std::move(newConnection);
+      activeConnections.insert({destinationNode,std::move(newConnection)});
        
     }catch(std::exception &error){
         std::cout << error.what();
@@ -103,11 +115,16 @@ void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
 void LinuxP2PNetworkImp::endConnection(IPV4Address neighbor){
 
 }
-void LinuxP2PNetworkImp::sendNeighbor(IPV4Address Neighbor,Message message) const{
 
+bool LinuxP2PNetworkImp::connectionExists(IPV4Address neighbor){
+  return activeConnections.find(neighbor) != activeConnections.end();
+}
 
+void LinuxP2PNetworkImp::sendNeighbor(IPV4Address neighbor,Message message) {
+    if(connectionExists(neighbor)){
+       activeConnections[neighbor]->execute(LinuxConnection::ExecutionCommand::PRINT);
+    }
 } 
-
 
 
 
