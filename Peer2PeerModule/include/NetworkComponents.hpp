@@ -28,6 +28,10 @@ struct IPV4Address{
       return this->calcComparisonValue() < rhs.calcComparisonValue();
   }
   
+  bool operator==(const IPV4Address& rhs) const {
+    return this->calcComparisonValue() == rhs.calcComparisonValue();
+  }
+
   private:
     long calcComparisonValue() const{
         return firstByte * 1'000'000'000 + secondByte * 1'000'000+ thirdByte * 1'000 + fourthByte; 

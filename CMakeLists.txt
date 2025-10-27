@@ -1,8 +1,10 @@
-cmake_minimum_required(VERSION 3.26)
-project( "Blockchain from scratch")
+project("Blockchain from scratch")
+cmake_minimum_required(VERSION 3.20)
 
-set(CMAKE_STANDARD_REQUIRED ON)
-set(CMAKE_STANDARD 17)
-set(CMAKE_EXTENSION OFF)
 
-add_subdirectory(src)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+
+add_subdirectory(Peer2PeerModule)

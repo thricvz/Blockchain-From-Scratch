@@ -15,12 +15,13 @@ class P2PNetworkImp{
       virtual void endConnection(IPV4Address neighbor)=0;
       virtual void sendNeighbor(IPV4Address Neighbor,Message message)=0;
       virtual void startConnection(IPV4Address node)=0;
+      virtual void listenIncomingConnections() = 0;
+
       virtual ~P2PNetworkImp()=default;
    
       vector<IPV4Address> neighborNodes{};
 
     protected:
-      virtual void setupConnection(IPV4Address node)=0;
       map<IPV4Address,socketFD> activeSockets{};
       
 
