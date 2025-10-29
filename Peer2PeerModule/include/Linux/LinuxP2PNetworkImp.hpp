@@ -10,7 +10,7 @@
 class LinuxP2PNetworkImp : public P2PNetworkImp{
     public:
 
-      LinuxP2PNetworkImp(); 
+      LinuxP2PNetworkImp()=default; 
       ~LinuxP2PNetworkImp(); 
 
       virtual void startConnection(IPV4Address node) override;

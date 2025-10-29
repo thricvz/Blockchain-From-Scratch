@@ -4,18 +4,23 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
-#include <pair>
+#include <utility>
 #include <memory>
+#include <stdexcept>
 
+
+#define MAX_CLIENT_QUEUE_LENGTH 3
 using std::pair;
 using std::unique_ptr;
 using socketFD = int;
 
-pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Port port,ConnectionDirection connectionType){
+
+
+pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Port port){
     unique_ptr<addrinfo> hints;
     unique_ptr<addrinfo*> connectionDataPtr;
 
-    connectionData = std::make_unique<addrinfo>(); 
+    connectionDataPtr = std::make_unique<addrinfo*>(); 
     hints = std::make_unique<addrinfo>(); 
 
     hints->ai_family = AF_INET;
@@ -33,15 +38,15 @@ pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Por
         throw std::runtime_error("Failed to get address info");
     }
 
-    auto connectionData = connectionDataPtr.get();
+    auto connectionData = *connectionDataPtr.get();
     int socketFD = socket(connectionData->ai_family,connectionData->ai_socktype,connectionData->ai_protocol);  
 
     if(socketFD ==-1){
-       throw std::runtime_error("Failed to create socket for address:"+static_cast<string>(destinationNode));
+       throw std::runtime_error("Failed to create socket for address:"+static_cast<string>(address));
     } 
 
     
-    return pair{socketFD,connectionDataPtr};
+    return std::pair(socketFD,std::move(connectionDataPtr));
 
 
 };
@@ -49,15 +54,22 @@ pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Por
 int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connectionType){
     try{
       auto results = createSocket(address,port); 
-      auto connectionData = results.second.get();
-
+      int socketFD = results.first;
+      auto connectionData = *results.second.get();
+      
+      
       switch(connectionType){
-          case connectionType::INCOMING:
-              
+          case ConnectionDirection::INCOMING:
+              bind(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              listen(socketFD,MAX_CLIENT_QUEUE_LENGTH);
               break;
-          case connectionType::OUT_GOING:
+
+          case ConnectionDirection::OUT_GOING:
+              connect(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
               break;
+
       }
+      return socketFD;
     }catch(std::exception&  error){
         throw error;
     }

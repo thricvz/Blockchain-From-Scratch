@@ -1,9 +1,13 @@
-#include "include/LinuxP2PNetworkImp.hpp" 
+#include "LinuxP2PNetworkImp.hpp" 
 #include "SocketFunctionality.hpp"
 #include <thread>
 #include <iostream>
 #include <exception>
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
   for(auto& [ip, connection] : activeConnections){
@@ -12,23 +16,38 @@ LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
 }; 
 
 
-void createNewConnections(std::weak_ptr<bool> keepListening ,LinuxP2PNetworkImp* imp,int listeningSocket){
+void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* imp,int listeningSocket){
+    while(!parentObject.expired()){
 
+        sockaddr *incomingNode{nullptr};
+        socklen_t *incomingNodeAddrlength{};
+        auto incomingNodeSocket = accept(listeningSocket,incomingNode,incomingNodeAddrlength);   
+
+        if(incomingNodeSocket ==-1){
+          std::cout << "failed to get new connection";
+          return;
+        }
+        
+        std::cout << "new node connected to us" << incomingNodeSocket << "\n";  
+        //create new LinuxConnection
+    }
 
 };
 
 void LinuxP2PNetworkImp::listenIncomingConnections() {
     try{
       //bind the socket
-      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},"8001");
+      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},"8001",ConnectionDirection::INCOMING);
 
       acceptConnections = std::make_shared<bool>(true);
       
       std::thread listenerThread(createNewConnections,
           std::weak_ptr<bool>(acceptConnections),
           this,
-          listeningSocketFD, 
-      )
+          listeningSocketFD 
+      );
+
+      listenerThread.detach();
 
     }catch(std::exception& error){
       std::cout << error.what();
@@ -46,7 +65,7 @@ void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
 
     try{
       //creates the socket for the onnection
-      int connectionSocketFD = setupSocket(destinationNode,"8080");
+      int connectionSocketFD = setupSocket(destinationNode,"8080",ConnectionDirection::OUT_GOING);
       activeSockets[destinationNode] = connectionSocketFD; 
 
       std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD);

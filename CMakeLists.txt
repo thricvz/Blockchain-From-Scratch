@@ -7,4 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
+include_directories(Peer2PeerModule/include)
+
 add_subdirectory(Peer2PeerModule)
+add_subdirectory(test)

@@ -1,5 +1,9 @@
 #include "LinuxConnection.hpp"
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netdb.h>
+#include <unistd.h>
 
 LinuxConnection::LinuxConnection(int socketFD):
   socketFD{socketFD},
