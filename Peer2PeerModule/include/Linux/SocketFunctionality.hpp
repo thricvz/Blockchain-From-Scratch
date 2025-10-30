@@ -7,4 +7,4 @@ enum class ConnectionDirection{INCOMING,OUT_GOING};
 
 int setupSocket(const IPV4Address&,Port,ConnectionDirection);
 
-
+IPV4Address getClientAddress(int clientSocket);

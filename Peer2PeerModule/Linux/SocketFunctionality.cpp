@@ -1,4 +1,6 @@
 #include "SocketFunctionality.hpp"
+#include <cstring>
+#include <iostream>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
@@ -6,8 +8,13 @@
 #include <errno.h>
 #include <utility>
 #include <memory>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <stdexcept>
-
+#include <cstdint>
+#include <vector>
+#include <cmath>
+#include <cstring>
 
 #define MAX_CLIENT_QUEUE_LENGTH 3
 using std::pair;
@@ -74,3 +81,51 @@ int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connect
         throw error;
     }
 };
+
+IPV4Address charToAddress(char * stream){
+    
+    auto calculateByteWorth = [](char *& byteSegment)->std::uint8_t{
+        auto getDigitValue = [](char character) -> std::uint8_t{
+            return  character -'0';
+        };
+       
+        std::uint8_t byteValue{};
+        std::vector<uint8_t> digits{};
+
+        while((*byteSegment)){
+            if(!std::strncmp(byteSegment,".",1)){
+              byteSegment++;
+              break;
+            }
+
+            digits.push_back(getDigitValue(*byteSegment)); 
+            byteSegment++;
+        }
+        
+        auto numberDigits = digits.size();  
+        for(int index = 0;index < numberDigits ;index++){
+           byteValue += digits[index] * pow(10,numberDigits-(index+1));
+        }
+
+        return byteValue;
+    };
+
+   return IPV4Address{
+      calculateByteWorth(stream),
+      calculateByteWorth(stream),
+      calculateByteWorth(stream),
+      calculateByteWorth(stream)
+   };  
+};
+
+IPV4Address getClientAddress(int clientSocket){
+    struct sockaddr_in serv_addr; 
+    socklen_t len; 
+
+    memset(&serv_addr, '0', sizeof(serv_addr));
+    getpeername(clientSocket, (struct sockaddr*)&serv_addr, &len );
+  
+    return charToAddress(inet_ntoa(serv_addr.sin_addr));
+};
+
+

@@ -19,7 +19,7 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
       virtual void listenIncomingConnections() override;
 
       bool connectionExists(IPV4Address neighbor);
-
+      void addNeighbor(const IPV4Address& neighbor,std::unique_ptr<LinuxConnection> connection);
      protected:
   
       map<IPV4Address,std::unique_ptr<LinuxConnection>> activeConnections{};
