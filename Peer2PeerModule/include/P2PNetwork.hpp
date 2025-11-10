@@ -8,16 +8,20 @@ using std::vector;
 
 class P2PNetwork{
   public:
-    P2PNetwork()=default; 
+    P2PNetwork(std::unique_ptr<P2PNetworkImp>);
     
-    virtual void startConnection(IPV4Address node)=0;
-    virtual void endConnection(IPV4Address neighbor)=0;
+    void startConnection(const IPV4Address& node);
+    void endConnection(const IPV4Address& neighbor);
     
-    virtual void propagateOnNetwork(Message message,vector<IPV4Address> excludeNodes={}) = 0;
-    virtual void sendNeighbor(IPV4Address Neighbor,Message message) =0;
-    virtual void onStartup() = 0;
+    void propagateOnNetwork(const Message& message,vector<IPV4Address> excludeNodes={});
+    void sendNeighbor(const IPV4Address& Neighbor,const Message& message);
+    void onStartup();
 
-    virtual ~P2PNetwork()=default;
+    vector<IPV4Address> getNeighbors(){
+        return imp->neighborNodes;
+    }
+
+    ~P2PNetwork()=default;
     
     std::vector<IPV4Address> neighbors{};
 

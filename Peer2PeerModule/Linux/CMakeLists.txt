@@ -1,2 +1,2 @@
 
-add_library(LinuxP2PNetworkModule LinuxP2PImp.cpp LinuxP2PNetwork.cpp LinuxConnection.cpp SocketFunctionality.cpp)
+add_library(LinuxP2PNetworkImp LinuxP2PImp.cpp LinuxConnection.cpp SocketFunctionality.cpp)

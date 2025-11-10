@@ -13,12 +13,12 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
       LinuxP2PNetworkImp()=default; 
       ~LinuxP2PNetworkImp(); 
 
-      virtual void startConnection(IPV4Address node) override;
-      virtual void endConnection(IPV4Address neighbor) override;
-      virtual void sendNeighbor(IPV4Address neighbor,Message message) override;
+      virtual void startConnection(const IPV4Address& node) override;
+      virtual void endConnection(const IPV4Address& neighbor) override;
+      virtual void sendNeighbor(const IPV4Address& neighbor,const Message& message) override;
       virtual void listenIncomingConnections() override;
 
-      bool connectionExists(IPV4Address neighbor);
+      bool connectionExists(const IPV4Address& neighbor);
       void addNeighbor(const IPV4Address& neighbor,std::unique_ptr<LinuxConnection> connection);
      protected:
   

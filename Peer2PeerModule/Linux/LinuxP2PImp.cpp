@@ -3,11 +3,12 @@
 #include <thread>
 #include <iostream>
 #include <exception>
-
+#include <algorithm>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#define DEFAULT_LISTENING_PORT "8081"
 
 LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
   for(auto& [ip, connection] : activeConnections){
@@ -33,7 +34,9 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
         //Doesn't accept two connections to a singular node
         if(!imp->connectionExists(neighborAddress)){
           auto neighborConnectionObject = std::make_unique<LinuxConnection>(neighborNodeSocket); 
+
           imp->addNeighbor(neighborAddress,std::move(neighborConnectionObject)); 
+          imp->neighborNodes.push_back(neighborAddress);
 
         }else{
             close(neighborNodeSocket);
@@ -44,7 +47,7 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 
 void LinuxP2PNetworkImp::listenIncomingConnections() {
     try{
-      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},"8001",ConnectionDirection::INCOMING);
+      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},DEFAULT_LISTENING_PORT,ConnectionDirection::INCOMING);
 
       acceptConnections = std::make_shared<bool>(true);
       
@@ -66,12 +69,12 @@ inline void launchConnection(LinuxConnection* newConnection){
       newConnection->start();
 
 }
-void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
+void LinuxP2PNetworkImp::startConnection(const IPV4Address& destinationNode){
     if(connectionExists(destinationNode))
       return;
 
     try{
-      int connectionSocketFD = setupSocket(destinationNode,"8080",ConnectionDirection::OUT_GOING);
+      int connectionSocketFD = setupSocket(destinationNode,NULL,ConnectionDirection::OUT_GOING);
       activeSockets[destinationNode] = connectionSocketFD; 
 
       std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD);
@@ -79,13 +82,14 @@ void LinuxP2PNetworkImp::startConnection(IPV4Address destinationNode){
       connectionThread.detach();
 
       activeConnections.insert({destinationNode,std::move(newConnection)});
-       
+      neighborNodes.push_back(destinationNode);
+
     }catch(std::exception &error){
         std::cout << error.what();
     }
 
 }
-void LinuxP2PNetworkImp::endConnection(IPV4Address neighbor){
+void LinuxP2PNetworkImp::endConnection(const IPV4Address& neighbor){
      if(!connectionExists(neighbor))
        return;
          
@@ -95,15 +99,17 @@ void LinuxP2PNetworkImp::endConnection(IPV4Address neighbor){
      if(connection->state() != LinuxConnection::ConnectionState::CLOSED){
         return endConnection(neighbor);
      }  
+
      connection = nullptr; 
      activeConnections.erase(neighbor); 
+     neighborNodes.erase(std::find(neighborNodes.begin(),neighborNodes.end(),neighbor));
 }
 
-bool LinuxP2PNetworkImp::connectionExists(IPV4Address neighbor){
+bool LinuxP2PNetworkImp::connectionExists(const IPV4Address& neighbor){
   return activeConnections.find(neighbor) != activeConnections.end();
 }
 
-void LinuxP2PNetworkImp::sendNeighbor(IPV4Address neighbor,Message message) {
+void LinuxP2PNetworkImp::sendNeighbor(const IPV4Address& neighbor,const Message& message) {
     if(connectionExists(neighbor)){
        activeConnections[neighbor]->execute(LinuxConnection::ConnectionRequest::SEND);
     }
