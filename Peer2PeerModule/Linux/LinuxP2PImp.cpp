@@ -8,7 +8,7 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#define DEFAULT_LISTENING_PORT "8081"
+#define DEFAULT_LISTENING_PORT "8001"
 
 LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
   for(auto& [ip, connection] : activeConnections){

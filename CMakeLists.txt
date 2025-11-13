@@ -1,6 +1,5 @@
-project("Blockchain from scratch")
 cmake_minimum_required(VERSION 3.20)
-
+project("Blockchain from scratch")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

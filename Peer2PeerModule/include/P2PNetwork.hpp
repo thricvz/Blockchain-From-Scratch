@@ -3,12 +3,16 @@
 #include "P2PNetworkImp.hpp"
 #include <memory>
 #include <vector>
+#include "nlohmann/json.hpp"
+#include <string>
 
+using json = nlohmann::json;
+using basic_json = nlohmann::basic_json;
 using std::vector;
 
 class P2PNetwork{
   public:
-    P2PNetwork(std::unique_ptr<P2PNetworkImp>);
+    P2PNetwork(std::unique_ptr<P2PNetworkImp>,const std::string& configurationFile);
     
     void startConnection(const IPV4Address& node);
     void endConnection(const IPV4Address& neighbor);
@@ -25,7 +29,7 @@ class P2PNetwork{
     
     std::vector<IPV4Address> neighbors{};
 
-  protected :
+  private:
     std::unique_ptr<P2PNetworkImp> imp{nullptr}; 
-    
+    basic_json configFile{};   
 };

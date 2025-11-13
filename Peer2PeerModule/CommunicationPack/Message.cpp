@@ -1,23 +1,33 @@
-#include "Message.hpp"
+#include "MessageCreator.hpp"
 
-Message& Message::addAuthor(const IPV4Address& author){
+
+Message MessageCreator::generateMessage(){
+  return Message{
+    author,
+    messageType,
+    std::move(content), 
+    std::move(flags) 
+  };
+};
+
+MessageCreator& MessageCreator::addAuthor(const IPV4Address& author){
     this->author = author;
-    return this;
+    return *this;
 };
 
-Message& Message::addContent(const vector<uint8_t>& content){
+MessageCreator& MessageCreator::addContent(const vector<uint8_t>& content){
     this->content = content;
-    return this;
+    return *this;
 };
 
-Message& Message::addFlag(Message::Flag flag){
+MessageCreator& MessageCreator::addFlag(Message::Flag flag){
    this->flags.push_back(flag);
-   return this;
+   return *this;
 };
 
-Message& Message::addType(Message::MessageType type){
-   this->type = type;
-   return this;
-};
 
+MessageCreator& MessageCreator::addMessageCreatorType(uint8_t msgType){
+  this->messagType = msgType;
+  return *this;
+};
 

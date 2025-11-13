@@ -16,7 +16,7 @@ class P2PNetworkImp{
       virtual void endConnection(const IPV4Address& neighbor)=0;
       virtual void sendNeighbor(const IPV4Address& Neighbor,const Message& message)=0;
       virtual void startConnection(const IPV4Address& node)=0;
-      virtual void listenIncomingConnections() = 0;
+      virtual void listenIncomingConnections(const std::string& port) = 0;
 
       virtual ~P2PNetworkImp()=default;
    
