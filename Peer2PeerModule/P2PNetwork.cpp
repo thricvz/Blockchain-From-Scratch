@@ -2,14 +2,14 @@
 #include <algorithm>
 #include "nlohmann/json.hpp"
 
-using json = nlohmann::json;
-using basic_json = nlohmann::basic_json;
+//using json = nlohmann::json;
+//using basic_json = nlohmann::basic_json;
 
 P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,const std::string& configurationFile): 
   imp{std::move(platformImp)
 }
 {
-  configFile = basic_json::parse<std::string>(configurationFile);
+  //configFile = basic_json::parse<std::string>(configurationFile);
   //imp->listenIncomingConnections(); is missing a port here
 
 };

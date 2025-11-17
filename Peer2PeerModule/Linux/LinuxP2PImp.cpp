@@ -8,7 +8,6 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
-#define DEFAULT_LISTENING_PORT "8001"
 
 LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
   for(auto& [ip, connection] : activeConnections){
@@ -45,9 +44,9 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 
 };
 
-void LinuxP2PNetworkImp::listenIncomingConnections() {
+void LinuxP2PNetworkImp::listenIncomingConnections(const std::string& port) {
     try{
-      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},DEFAULT_LISTENING_PORT,ConnectionDirection::INCOMING);
+      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},port.c_str(),ConnectionDirection::INCOMING);
 
       acceptConnections = std::make_shared<bool>(true);
       

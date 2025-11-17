@@ -1,4 +1,4 @@
-#include "MessageCreator.hpp"
+#include "Message.hpp"
 
 
 Message MessageCreator::generateMessage(){
@@ -26,8 +26,8 @@ MessageCreator& MessageCreator::addFlag(Message::Flag flag){
 };
 
 
-MessageCreator& MessageCreator::addMessageCreatorType(uint8_t msgType){
-  this->messagType = msgType;
+MessageCreator& MessageCreator::addMessageType(Message::MessageType msgType){
+  this->messageType = msgType;
   return *this;
 };
 

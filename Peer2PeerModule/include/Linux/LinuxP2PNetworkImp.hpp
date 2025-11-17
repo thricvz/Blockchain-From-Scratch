@@ -16,7 +16,7 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
       virtual void startConnection(const IPV4Address& node) override;
       virtual void endConnection(const IPV4Address& neighbor) override;
       virtual void sendNeighbor(const IPV4Address& neighbor,const Message& message) override;
-      virtual void listenIncomingConnections() override;
+      virtual void listenIncomingConnections(const std::string& port) override;
 
       bool connectionExists(const IPV4Address& neighbor);
       void addNeighbor(const IPV4Address& neighbor,std::unique_ptr<LinuxConnection> connection);
