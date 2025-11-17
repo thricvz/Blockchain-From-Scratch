@@ -29,6 +29,7 @@ TEST(Serialization,MessageMissingFlags) {
     auto originalMessage = 
       MessageCreator().addAuthor(IPV4Address{255,4,53,45})
       .addMessageType(Message::MessageType::DISCOVERY)
+      .addContent({6,7,88,99})
       .generateMessage();
   
    auto deserializedMessage=Serializer::deserialize(Serializer::serialize(originalMessage));

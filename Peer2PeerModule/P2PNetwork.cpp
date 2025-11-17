@@ -6,7 +6,7 @@
 //using basic_json = nlohmann::basic_json;
 
 P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,const std::string& configurationFile): 
-  imp{std::move(platformImp)
+  imp{std::move(platformImp), config{configurationFile}
 }
 {
   //configFile = basic_json::parse<std::string>(configurationFile);

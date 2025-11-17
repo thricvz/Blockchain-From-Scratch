@@ -1,13 +1,11 @@
 #pragma once
 #include "NetworkComponents.hpp"
 #include "P2PNetworkImp.hpp"
+#include "NetworkConfiguration.hpp"
 #include <memory>
 #include <vector>
-//#include "nlohmann/json.hpp"
 #include <string>
 
-//using json = nlohmann::json;
-//using basic_json = nlohmann::basic_json;
 using std::vector;
 
 class P2PNetwork{
@@ -31,5 +29,5 @@ class P2PNetwork{
 
   private:
     std::unique_ptr<P2PNetworkImp> imp{nullptr}; 
-    //basic_json configFile{};   
+    NetworkConfiguration config{};
 };
