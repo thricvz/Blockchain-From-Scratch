@@ -2,6 +2,8 @@
 #include <cstdint>
 #include <vector>
 #include <string>
+#include <cmath>
+#include <cstring>
 
 using std::vector;
 using std::to_string;
@@ -36,6 +38,51 @@ struct IPV4Address{
     long calcComparisonValue() const{
         return firstByte * 1'000'000'000 + secondByte * 1'000'000+ thirdByte * 1'000 + fourthByte; 
     }
+};
+
+
+static IPV4Address charToAddress(const char * input){
+    
+    auto calculateByteWorth = [](char *& byteSegment)->std::uint8_t{
+        auto getDigitValue = [](char character) -> std::uint8_t{
+            return  character -'0';
+        };
+       
+        std::uint8_t byteValue{};
+        std::vector<uint8_t> digits{};
+
+        while((*byteSegment)){
+            if(!std::strncmp(byteSegment,".",1)){
+              byteSegment++;
+              break;
+            }
+
+            digits.push_back(getDigitValue(*byteSegment)); 
+            byteSegment++;
+        }
+        
+
+        auto numberDigits = digits.size();  
+        for(int index = 0;index < numberDigits ;index++){
+           byteValue += digits[index] * pow(10,numberDigits-(index+1));
+        }
+
+        return byteValue;
+    };
+
+   char * stream = new char[strlen(input)] ;
+   char* const streamStart = stream; 
+   strcpy(stream, input);
+
+   auto result = IPV4Address{
+      calculateByteWorth(stream),
+      calculateByteWorth(stream),
+      calculateByteWorth(stream),
+      calculateByteWorth(stream)
+   };  
+
+  delete[] streamStart;
+  return result;
 };
 
 

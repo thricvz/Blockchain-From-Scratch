@@ -82,42 +82,6 @@ int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connect
     }
 };
 
-IPV4Address charToAddress(char * stream){
-    
-    auto calculateByteWorth = [](char *& byteSegment)->std::uint8_t{
-        auto getDigitValue = [](char character) -> std::uint8_t{
-            return  character -'0';
-        };
-       
-        std::uint8_t byteValue{};
-        std::vector<uint8_t> digits{};
-
-        while((*byteSegment)){
-            if(!std::strncmp(byteSegment,".",1)){
-              byteSegment++;
-              break;
-            }
-
-            digits.push_back(getDigitValue(*byteSegment)); 
-            byteSegment++;
-        }
-        
-        auto numberDigits = digits.size();  
-        for(int index = 0;index < numberDigits ;index++){
-           byteValue += digits[index] * pow(10,numberDigits-(index+1));
-        }
-
-        return byteValue;
-    };
-
-   return IPV4Address{
-      calculateByteWorth(stream),
-      calculateByteWorth(stream),
-      calculateByteWorth(stream),
-      calculateByteWorth(stream)
-   };  
-};
-
 IPV4Address getClientAddress(int clientSocket){
     struct sockaddr_in serv_addr; 
     socklen_t len; 

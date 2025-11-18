@@ -29,5 +29,5 @@ class P2PNetwork{
 
   private:
     std::unique_ptr<P2PNetworkImp> imp{nullptr}; 
-    NetworkConfiguration config{};
+    NetworkConfiguration config;
 };
