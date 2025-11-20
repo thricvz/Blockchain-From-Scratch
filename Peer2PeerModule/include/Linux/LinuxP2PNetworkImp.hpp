@@ -20,11 +20,16 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
 
       bool connectionExists(const IPV4Address& neighbor);
       void addNeighbor(const IPV4Address& neighbor,std::unique_ptr<LinuxConnection> connection);
+      
+      virtual std::optional<Message> getLatestMessage() override; 
+      
+      friend void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* imp,int listeningSocket);
      protected:
   
       map<IPV4Address,std::unique_ptr<LinuxConnection>> activeConnections{};
     
      private:
       std::shared_ptr<bool> acceptConnections{nullptr};
+      std::shared_ptr<MessageStore> messageStore{};
 }; 
 

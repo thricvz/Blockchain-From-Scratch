@@ -19,7 +19,7 @@ LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
 void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* imp,int listeningSocket){
     while(!parentObject.expired()){
 
-        int neighborNodeSocket = accept(listeningSocket,NULL,NULL);   
+        int neighborNodeSocket = accept4(listeningSocket,NULL,NULL,SOCK_NONBLOCK);   
 
         if(neighborNodeSocket ==-1){
           std::cout <<"Failed to accept client connection";
@@ -32,7 +32,8 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 
         //Doesn't accept two connections to a singular node
         if(!imp->connectionExists(neighborAddress)){
-          auto neighborConnectionObject = std::make_unique<LinuxConnection>(neighborNodeSocket); 
+          auto messageStorePtr = imp->messageStore;
+          auto neighborConnectionObject = std::make_unique<LinuxConnection>(neighborNodeSocket,messageStorePtr); 
 
           imp->addNeighbor(neighborAddress,std::move(neighborConnectionObject)); 
           imp->neighborNodes.push_back(neighborAddress);
@@ -76,7 +77,7 @@ void LinuxP2PNetworkImp::startConnection(const IPV4Address& destinationNode){
       int connectionSocketFD = setupSocket(destinationNode,NULL,ConnectionDirection::OUT_GOING);
       activeSockets[destinationNode] = connectionSocketFD; 
 
-      std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD);
+      std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD,messageStore);
       std::thread connectionThread(launchConnection,newConnection.get());
       connectionThread.detach();
 
@@ -110,15 +111,17 @@ bool LinuxP2PNetworkImp::connectionExists(const IPV4Address& neighbor){
 
 void LinuxP2PNetworkImp::sendNeighbor(const IPV4Address& neighbor,const Message& message) {
     if(connectionExists(neighbor)){
-       activeConnections[neighbor]->execute(LinuxConnection::ConnectionRequest::SEND);
+       auto neighborConnection = activeConnections[neighbor].get();
+       neighborConnection->execute(LinuxConnection::ConnectionRequest::SEND);
+       messageStore->transmitMessageToConnection(neighborConnection->getId(),message);
     }
 } 
 
 
 void LinuxP2PNetworkImp::addNeighbor(const IPV4Address& neighbor,std::unique_ptr<LinuxConnection> connection){
    activeConnections[neighbor] = std::move(connection);
-
-
 };
 
-
+std::optional<Message> LinuxP2PNetworkImp::getLatestMessage() {
+        return messageStore->retrieveUserMessage(); 
+}; 

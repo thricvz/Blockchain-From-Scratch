@@ -5,10 +5,23 @@
 #include <netdb.h>
 #include <unistd.h>
 
-LinuxConnection::LinuxConnection(int socketFD):
+
+LinuxConnection::LinuxConnection(int socketFD,std::shared_ptr<MessageStore> messageStore):
   socketFD{socketFD},
-  currentState{LinuxConnection::ConnectionState::ACTIVE}
+  currentState{LinuxConnection::ConnectionState::ACTIVE},
+  messageStore{messageStore},
+  id{LinuxConnection::createId()}
 {};
+
+int LinuxConnection::createId(){
+    static int idCounter{0};
+    return idCounter++; 
+};
+
+
+int LinuxConnection::getId() const{
+    return id;
+}; 
 
 LinuxConnection::ConnectionState LinuxConnection::state() const{
     return currentState;
@@ -34,6 +47,7 @@ void LinuxConnection::end(){
 void LinuxConnection::start(){
 
       while(currentState == ConnectionState::ACTIVE){
+          //first check if any message was received 
           if(this->commands.empty())
             continue;
           

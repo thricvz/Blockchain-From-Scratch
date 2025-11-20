@@ -2,13 +2,11 @@
 #include <algorithm>
 #include "nlohmann/json.hpp"
 
-//using json = nlohmann::json;
-//using basic_json = nlohmann::basic_json;
 
-P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,const std::string& configurationFile): 
-  imp{std::move(platformImp)}, config{configurationFile}
+P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,const std::string& listeningPort): 
+  imp{std::move(platformImp)}
 {
-  imp->listenIncomingConnections(config.getListeningPort()); 
+  imp->listenIncomingConnections(listeningPort); 
 
 };
 
@@ -30,6 +28,7 @@ void P2PNetwork::sendNeighbor(const IPV4Address& neighbor,const Message& message
       imp->sendNeighbor(neighbor,message);
 };
 
-void P2PNetwork::onStartup(){
-    ///reads the config file reads the address of the node and its port
-};
+
+std::optional<Message> P2PNetwork::getLatestMessage(){
+    return imp->getLatestMessage();
+}; 
