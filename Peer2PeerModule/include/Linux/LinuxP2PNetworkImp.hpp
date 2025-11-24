@@ -10,7 +10,7 @@
 class LinuxP2PNetworkImp : public P2PNetworkImp{
     public:
 
-      LinuxP2PNetworkImp()=default; 
+      LinuxP2PNetworkImp(); 
       ~LinuxP2PNetworkImp(); 
 
       virtual void startConnection(const IPV4Address& node) override;
@@ -29,7 +29,7 @@ class LinuxP2PNetworkImp : public P2PNetworkImp{
       map<IPV4Address,std::unique_ptr<LinuxConnection>> activeConnections{};
     
      private:
-      std::shared_ptr<bool> acceptConnections{nullptr};
-      std::shared_ptr<MessageStore> messageStore{};
+      std::shared_ptr<bool>             acceptConnections{nullptr};
+      std::shared_ptr<MessageStore>     messageStore{};
 }; 
 

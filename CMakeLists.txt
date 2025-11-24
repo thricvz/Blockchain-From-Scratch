@@ -13,6 +13,8 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 
 include_directories(Peer2PeerModule/include)
+include_directories(NetworkConfiguration/include)
 
 add_subdirectory(Peer2PeerModule)
+add_subdirectory(NetworkConfiguration)
 add_subdirectory(test)

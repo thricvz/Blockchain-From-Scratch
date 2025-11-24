@@ -8,6 +8,10 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <mutex>
+
+
+LinuxP2PNetworkImp::LinuxP2PNetworkImp(): messageStore{std::make_shared<MessageStore>()}{};
 
 LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
   for(auto& [ip, connection] : activeConnections){
@@ -19,27 +23,26 @@ LinuxP2PNetworkImp::~LinuxP2PNetworkImp(){
 void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* imp,int listeningSocket){
     while(!parentObject.expired()){
 
-        int neighborNodeSocket = accept4(listeningSocket,NULL,NULL,SOCK_NONBLOCK);   
+        int neighborNodeSocket = accept(listeningSocket,NULL,NULL);   
 
-        if(neighborNodeSocket ==-1){
-          std::cout <<"Failed to accept client connection";
-          return;
-        }
+        if(neighborNodeSocket !=-1){
+            auto neighborAddress = getClientAddress(neighborNodeSocket);   
+           
+
+            //Doesn't accept two connections to a singular node
+            if(!imp->connectionExists(neighborAddress)){
+
+
+              auto messageStorePtr = imp->messageStore;
+              auto neighborConnectionObject = std::make_unique<LinuxConnection>(neighborNodeSocket,messageStorePtr); 
+
+              imp->addNeighbor(neighborAddress,std::move(neighborConnectionObject)); 
+              imp->neighborNodes.push_back(neighborAddress);
+
+            }else{
+                close(neighborNodeSocket);
+            }
         
-
-        auto neighborAddress = getClientAddress(neighborNodeSocket);   
-       
-
-        //Doesn't accept two connections to a singular node
-        if(!imp->connectionExists(neighborAddress)){
-          auto messageStorePtr = imp->messageStore;
-          auto neighborConnectionObject = std::make_unique<LinuxConnection>(neighborNodeSocket,messageStorePtr); 
-
-          imp->addNeighbor(neighborAddress,std::move(neighborConnectionObject)); 
-          imp->neighborNodes.push_back(neighborAddress);
-
-        }else{
-            close(neighborNodeSocket);
         }
     }
 
@@ -48,6 +51,8 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 void LinuxP2PNetworkImp::listenIncomingConnections(const std::string& port) {
     try{
       int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},port.c_str(),ConnectionDirection::INCOMING);
+
+
 
       acceptConnections = std::make_shared<bool>(true);
       
@@ -94,7 +99,7 @@ void LinuxP2PNetworkImp::endConnection(const IPV4Address& neighbor){
        return;
          
      auto connection =  std::move(activeConnections[neighbor]);
-     connection->execute(LinuxConnection::ConnectionRequest::CLOSE);
+     connection->addCommand(LinuxConnection::ConnectionRequest::CLOSE);
      
      if(connection->state() != LinuxConnection::ConnectionState::CLOSED){
         return endConnection(neighbor);
@@ -111,9 +116,10 @@ bool LinuxP2PNetworkImp::connectionExists(const IPV4Address& neighbor){
 
 void LinuxP2PNetworkImp::sendNeighbor(const IPV4Address& neighbor,const Message& message) {
     if(connectionExists(neighbor)){
+
        auto neighborConnection = activeConnections[neighbor].get();
-       neighborConnection->execute(LinuxConnection::ConnectionRequest::SEND);
        messageStore->transmitMessageToConnection(neighborConnection->getId(),message);
+       neighborConnection->addCommand(LinuxConnection::ConnectionRequest::SEND);
     }
 } 
 

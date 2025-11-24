@@ -2,7 +2,7 @@
 #include "NetworkComponents.hpp"
 #include "../../CommunicationPack/Message.hpp"
 #include <optional>
-
+#include <mutex>
 #include <queue>
 #include <map>
 
@@ -20,4 +20,5 @@ class MessageStore{
     private:
       queue<Message> userMessages{};
       map<int,queue<Message>> connectionMessageStorage{};
+      std::mutex mutex{};
 };

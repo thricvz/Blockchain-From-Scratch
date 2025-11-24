@@ -1,7 +1,9 @@
 #pragma once
 #include "MessageStore/MessageStore.hpp"
+#include "ChunkSenderAndReceiver.hpp"
 #include <queue>
 #include <memory>
+#include <mutex>
 
 using std::queue;
 
@@ -23,12 +25,17 @@ class LinuxConnection{
   private:
 
     void end();
+    void sendMessage();    
+
  
     int socketFD {};
     int id{};
 
-    ConnectionState currentState{}; 
-    queue<ConnectionRequest> commands{};        
     std::shared_ptr<MessageStore> messageStore;
+    ChunkSenderAndReceiver chunkSender;
+    ConnectionState currentState{}; 
+
+    queue<ConnectionRequest> commands{};        
+    std::mutex mutex{};
 };
 

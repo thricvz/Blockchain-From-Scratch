@@ -3,7 +3,7 @@
 include_directories(include/)
 include_directories(include/Linux/MessageStore)
 include_directories(include/Linux)
-include_directories(include/CommunicationPack)
+include_directories(include/CommunicationPack/)
 
 add_subdirectory(CommunicationPack)
 add_subdirectory(Linux)

@@ -9,7 +9,7 @@ using byte = std::uint8_t;
 
 struct Message{
     enum class Flag : uint8_t {REDIFFUSE,DIRECT};
-    enum class MessageType : uint8_t {DISCOVERY};
+    enum class MessageType : uint8_t {DISCOVERY,DEFAULT};
 
     IPV4Address author{};
     MessageType messageType {};
@@ -34,7 +34,7 @@ class MessageCreator{
   
   private: 
     IPV4Address author{};
-    Message::MessageType messageType {};
+    Message::MessageType messageType {Message::MessageType::DEFAULT};
     vector<byte> content{};
     vector<Message::Flag> flags{};
 };
