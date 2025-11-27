@@ -11,11 +11,11 @@ using std::vector;
 class P2PNetwork{
   public:
     
-    P2PNetwork(std::unique_ptr<P2PNetworkImp>,const std::string& listeningPort);
+    P2PNetwork(std::unique_ptr<P2PNetworkImp>,Port listeningPort);
    
 
 
-    void startConnection(const IPV4Address& node);
+    void startConnection(const IPV4Address& node,Port port);
     void endConnection(const IPV4Address& neighbor);
     
     void propagateOnNetwork(const Message& message,vector<IPV4Address> excludeNodes={});

@@ -60,19 +60,32 @@ pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Por
 
 int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connectionType){
     try{
+      /*
+        use a structred binding
+        auto [socketFD,connectionData] = createSocket(address,port);
+      */
       auto results = createSocket(address,port); 
       int socketFD = results.first;
       auto connectionData = *results.second.get();
+
       
-      
+      auto checkForCleanup = [](int socket,int operationResult)-> void {
+               if(operationResult==-1){
+                  close(socket);  
+                  throw std::runtime_error("Failed to bind/connect the socket\n");
+               } 
+      };  
+      int bindResult{};
+
       switch(connectionType){
           case ConnectionDirection::INCOMING:
-              bind(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
-              listen(socketFD,MAX_CLIENT_QUEUE_LENGTH);
+              bindResult = bind(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              checkForCleanup(socketFD,bindResult);
               break;
 
           case ConnectionDirection::OUT_GOING:
-              connect(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              bindResult = connect(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              checkForCleanup(socketFD,bindResult);
               break;
 
       }

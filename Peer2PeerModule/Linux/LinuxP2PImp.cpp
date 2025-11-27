@@ -48,9 +48,9 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 
 };
 
-void LinuxP2PNetworkImp::listenIncomingConnections(const std::string& port) {
+void LinuxP2PNetworkImp::listenIncomingConnections(Port port) {
     try{
-      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},port.c_str(),ConnectionDirection::INCOMING);
+      int listeningSocketFD = setupSocket(IPV4Address{127,0,0,1},port,ConnectionDirection::INCOMING);
 
 
 
@@ -74,12 +74,12 @@ inline void launchConnection(LinuxConnection* newConnection){
       newConnection->start();
 
 }
-void LinuxP2PNetworkImp::startConnection(const IPV4Address& destinationNode){
+void LinuxP2PNetworkImp::startConnection(const IPV4Address& destinationNode,Port port){
     if(connectionExists(destinationNode))
       return;
 
     try{
-      int connectionSocketFD = setupSocket(destinationNode,NULL,ConnectionDirection::OUT_GOING);
+      int connectionSocketFD = setupSocket(destinationNode,port,ConnectionDirection::OUT_GOING);
       activeSockets[destinationNode] = connectionSocketFD; 
 
       std::unique_ptr<LinuxConnection> newConnection = std::make_unique<LinuxConnection>(connectionSocketFD,messageStore);

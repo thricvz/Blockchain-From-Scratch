@@ -3,15 +3,15 @@
 #include "nlohmann/json.hpp"
 
 
-P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,const std::string& listeningPort): 
+P2PNetwork::P2PNetwork(std::unique_ptr<P2PNetworkImp> platformImp,Port listeningPort): 
   imp{std::move(platformImp)}
 {
   imp->listenIncomingConnections(listeningPort); 
 
 };
 
-void P2PNetwork::startConnection(const IPV4Address& node){
-    imp->startConnection(node);
+void P2PNetwork::startConnection(const IPV4Address& node,Port port){
+    imp->startConnection(node,port);
 };
 
 void P2PNetwork::endConnection(const IPV4Address& neighbor){
