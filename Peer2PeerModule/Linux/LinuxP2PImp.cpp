@@ -24,7 +24,7 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
     while(!parentObject.expired()){
 
         int neighborNodeSocket = accept(listeningSocket,NULL,NULL);   
-
+        
         if(neighborNodeSocket !=-1){
             auto neighborAddress = getClientAddress(neighborNodeSocket);   
            
@@ -40,7 +40,8 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
               imp->neighborNodes.push_back(neighborAddress);
 
             }else{
-                close(neighborNodeSocket);
+                perror("failed to accept connection:")
+                //close(neighborNodeSocket);
             }
         
         }

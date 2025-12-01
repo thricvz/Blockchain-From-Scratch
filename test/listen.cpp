@@ -5,7 +5,7 @@
 
 int main(){
   
-  P2PNetwork netin{std::make_unique<LinuxP2PNetworkImp >(),"8081"};
+  P2PNetwork netin{std::make_unique<LinuxP2PNetworkImp >(),NULL};
   
   while(true){
      auto message = netin.getLatestMessage();
