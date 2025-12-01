@@ -9,6 +9,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <mutex>
+#include <errno.h>
 
 
 LinuxP2PNetworkImp::LinuxP2PNetworkImp(): messageStore{std::make_shared<MessageStore>()}{};
@@ -25,6 +26,7 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
 
         int neighborNodeSocket = accept(listeningSocket,NULL,NULL);   
         
+        perror("failed to accept connection:");
         if(neighborNodeSocket !=-1){
             auto neighborAddress = getClientAddress(neighborNodeSocket);   
            
@@ -40,8 +42,7 @@ void createNewConnections(std::weak_ptr<bool> parentObject ,LinuxP2PNetworkImp* 
               imp->neighborNodes.push_back(neighborAddress);
 
             }else{
-                perror("failed to accept connection:")
-                //close(neighborNodeSocket);
+                close(neighborNodeSocket);
             }
         
         }

@@ -16,8 +16,7 @@
 #include <cmath>
 #include <cstring>
 #include <errno.h>
-
-#define MAX_CLIENT_QUEUE_LENGTH 3
+#define MAX_CONNECTIONS 3
 using std::pair;
 using std::unique_ptr;
 using socketFD = int;
@@ -81,6 +80,7 @@ int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connect
       switch(connectionType){
           case ConnectionDirection::INCOMING:
               bindResult = bind(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              listen(socketFD,MAX_CONNECTIONS); 
               checkForCleanup(socketFD,bindResult);
               break;
 
