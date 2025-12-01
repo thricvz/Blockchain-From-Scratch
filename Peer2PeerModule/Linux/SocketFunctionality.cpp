@@ -47,7 +47,7 @@ pair<socketFD,unique_ptr<addrinfo*>> createSocket(const IPV4Address& address,Por
     }
 
     auto connectionData = *connectionDataPtr.get();
-    int socketFD = socket(connectionData->ai_family,connectionData->ai_socktype | SOCK_NONBLOCK,connectionData->ai_protocol);  
+    int socketFD = socket(connectionData->ai_family,connectionData->ai_socktype ,connectionData->ai_protocol);  
 
     if(socketFD ==-1){
        throw std::runtime_error("Failed to create socket for address:"+static_cast<string>(address));
