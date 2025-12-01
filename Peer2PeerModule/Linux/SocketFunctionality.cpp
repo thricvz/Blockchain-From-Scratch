@@ -15,6 +15,7 @@
 #include <vector>
 #include <cmath>
 #include <cstring>
+#include <errno.h>
 
 #define MAX_CLIENT_QUEUE_LENGTH 3
 using std::pair;
@@ -85,6 +86,7 @@ int setupSocket(const IPV4Address& address,Port port,ConnectionDirection connect
 
           case ConnectionDirection::OUT_GOING:
               bindResult = connect(socketFD,connectionData->ai_addr,connectionData->ai_addrlen); 
+              perror("Failed to connect due to:");
               checkForCleanup(socketFD,bindResult);
               break;
 

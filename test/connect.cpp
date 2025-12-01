@@ -11,7 +11,7 @@ int main(){
         .addContent({00,11,22,33})
         .generateMessage();
 
-  netOut.startConnection(otherNodeAddress,"8081");
+  netOut.startConnection(otherNodeAddress,NULL);
   netOut.sendNeighbor(otherNodeAddress,Message{});
 
   return 0;
